@@ -1,0 +1,7 @@
+*
+!docker/
+!docker/**
+!buke-api/
+buke-api/*
+!buke-api/migrations/
+!buke-api/migrations/**

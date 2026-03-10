@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bukë Deployment Gateway</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f6f2;
+        --panel: #ffffff;
+        --panel-soft: #eef7f1;
+        --text: #111111;
+        --muted: #62625b;
+        --accent: #06c167;
+        --border: #e7e6df;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI Variable", "Bahnschrift", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(6, 193, 103, 0.1), transparent 30%),
+          linear-gradient(180deg, #faf9f5 0%, #f3f1ea 100%);
+      }
+
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 40px 24px 56px;
+      }
+
+      .hero {
+        display: grid;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        margin: 0;
+        font-size: 0.85rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.4rem, 5vw, 4rem);
+        line-height: 0.95;
+      }
+
+      .subtitle {
+        margin: 0;
+        max-width: 760px;
+        font-size: 1.05rem;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 22px;
+        box-shadow: 0 18px 48px rgba(17, 17, 17, 0.08);
+      }
+
+      .card.soft {
+        background: var(--panel-soft);
+      }
+
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 1.15rem;
+      }
+
+      .card p,
+      .card li {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(6, 193, 103, 0.1);
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .status.offline {
+        background: rgba(167, 76, 48, 0.12);
+        color: #a74c30;
+      }
+
+      code {
+        font-family: "Cascadia Code", "Consolas", monospace;
+        font-size: 0.92rem;
+        color: var(--text);
+      }
+
+      @media (max-width: 820px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Bukë Stack</p>
+        <h1>Docker deployment is online.</h1>
+        <p class="subtitle">
+          This frontend container serves as the web gateway for Bukë. API requests under
+          <code>/api/</code> are reverse-proxied to the Express backend, while PostgreSQL and
+          Redis run inside the same private Docker network.
+        </p>
+        <div id="apiStatus" class="status offline">Checking backend health...</div>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Available services</h2>
+          <ul>
+            <li><code>frontend</code> on port <code>80</code> inside the container</li>
+            <li><code>backend</code> on port <code>3000</code> inside the container</li>
+            <li><code>database</code> using PostgreSQL 16</li>
+            <li><code>redis</code> using Redis 7 with append-only persistence</li>
+          </ul>
+        </article>
+
+        <article class="card soft">
+          <h2>Expected endpoints</h2>
+          <ul>
+            <li><code>/api/health</code></li>
+            <li><code>/api/orders</code></li>
+            <li><code>/api/restaurants</code></li>
+            <li><code>/api/notifications</code></li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const status = document.getElementById("apiStatus");
+
+      fetch("/api/health", { cache: "no-store" })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("unhealthy");
+          }
+
+          status.className = "status";
+          status.textContent = "Backend healthy";
+        })
+        .catch(() => {
+          status.className = "status offline";
+          status.textContent = "Backend unavailable";
+        });
+    </script>
+  </body>
+</html>
